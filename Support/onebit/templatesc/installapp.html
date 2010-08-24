@@ -14,7 +14,9 @@ def run(environment):
 
     def block_content(context, environment=environment):
         if 0: yield None
-        yield u'\n    <h3></h3>\n    <pre id="output"></pre>\n'
+        yield u'
+    <h3></h3>
+    <pre id="output"></pre>\n'
 
     def block_style(context, environment=environment):
         if 0: yield None
@@ -23,9 +25,77 @@ def run(environment):
     def block_script(context, environment=environment):
         l_package = context.resolve('package')
         if 0: yield None
-        yield u'\n    cmd(\'cd "$TM_BUNDLE_SUPPORT"\');\n    cmd(\'cd onebit/\');\n    cmd(\'source bash/global.sh\');\n    cmd(\'checkBuildPath\');\n    var output = TextMate.system(command, null).outputString;\n    if (output) {\n        $(\'#content\').html(output);\n    } else {\n        command = "";\n\t\tcmd(\'cd "$TM_PROJECT_DIRECTORY/bin"\');\n\t\tcmd(\'apks=`ls | grep .apk`\');\n\t\tcmd(\'apk=$(CocoaDialog standard-dropdown --float --items $apks --string-output --text "Select a .apk file")\');\n        cmd(\'echo ${apk:2}"::::"${apk:0}\')\n        \n        var apk = (TextMate.system(command, null).outputString);\n        if (apk.indexOf("::::Ok")!=-1) {\n            i = apk.indexOf(\'::::\');\n            apk = apk.substring(0,i);\n            \n            if (apk!=\'\') {\n                command = "";\n                cmd(\'cd "$TM_BUNDLE_SUPPORT"\');\n                cmd(\'cd onebit/\');\n                cmd(\'python bash/listdevices.py\');\n\n                var device_str = (TextMate.system(command, null).outputString);\n\n                var device = \'\';\n\n                if (device_str!=\'\') {\n                    command = "";\n                    cmd(\'device=$(CocoaDialog standard-dropdown --float --items \'+device_str+\' --string-output --text "Select a device to install on")\');\n                    cmd(\'echo ${device:2}"::::"${device:0}\');\n                    device = (TextMate.system(command, null).outputString).replace("\\n", "").replace(" ","");\n                    \n                    \n                    \n                    if (device.indexOf("::::Ok")==-1) {\n                        device = "BAD";\n                    } else {\n                        i = device.indexOf(\'::::\');\n                        device = device.substring(0,i);\n                    }\n                }  else {\n                    $(\'#output\').html(\'No devices found.\\n\\n\')\n                }\n                if (device!="BAD") {\n                    command = "";\n                    cmd(\'"$ANDROID_SDK"/tools/adb -s "\'+device+\'" shell rm "/data/app/%s.apk"\');\n                    TextMate.system(command, null)\n                    command = "";\n                    cmd(\'cd "$TM_BUNDLE_SUPPORT"\');\n                    cmd(\'cd onebit/\');\n                    cmd(\'python bash/installapp.py "\'+apk+\'" "\'+device+\'"\');\n\n\n                    var result = TextMate.system(command, function(){\n                        $(\'h3\').html(\'Output\');    \n                        $(\'#output\').append(result.outputString); \n                        TextMate.isBusy = false;      \n                    });\n                    TextMate.isBusy = true;\n                    $(\'h3\').html(\'Installing...\');\n                } else {\n                    $(\'#output\').html(\'Installation Cancelled\');\n                }\n\n            };\n        } else {\n            $(\'#output\').html(\'Installation Cancelled\');\n        }\n    }\n' % (
-            l_package, 
-        )
+        yield u"""
+            cmd('cd "{$TM_BUNDLE_SUPPORT}/onebit/"');
+            cmd('source bash/global.sh');
+            cmd('checkBuildPath\');
+            var output = TextMate.system(command, null).outputString;
+            if (output)
+            {
+                $(\'#content\').html(output);
+            }
+            else 
+            {
+                command = "";
+                cmd('cd "{$TM_PROJECT_DIRECTORY}/bin"');
+                cmd('apks=`ls | grep .apk`');
+                cmd('apk=$(CocoaDialog standard-dropdown --float --items $apks --string-output --text "Select a .apk file")');
+                cmd('echo ${apk:2}"::::"${apk:0}')
+    
+                var apk = (TextMate.system(command, null).outputString);
+                if (apk.indexOf("::::Ok")!=-1) {
+                    i = apk.indexOf(\'::::\');
+                    apk = apk.substring(0,i);
+        
+                    if (apk!=\'\') {
+                        command = "";
+                        cmd(\'cd "$TM_BUNDLE_SUPPORT"\');
+                        cmd(\'cd onebit/\');
+                        cmd(\'python bash/listdevices.py\');\n
+                        var device_str = (TextMate.system(command, null).outputString);\n
+                        var device = \'\';\n
+                        if (device_str!=\'\') {
+                            command = "";
+                            cmd(\'device=$(CocoaDialog standard-dropdown --float --items \'+device_str+\' --string-output --text "Select a device to install on")\');
+                            cmd(\'echo ${device:2}"::::"${device:0}\');
+                            device = (TextMate.system(command, null).outputString).replace("\\n", "").replace(" ","");
+                
+                
+                
+                            if (device.indexOf("::::Ok")==-1) {
+                                device = "BAD";
+                            } else {
+                                i = device.indexOf(\'::::\');
+                                device = device.substring(0,i);
+                            }
+                        }  else {
+                            $(\'#output\').html(\'No devices found.\\n\\n\')
+                        }
+                        if (device!="BAD") {
+                            command = "";
+                            cmd(\'"$ANDROID_SDK"/tools/adb -s "\'+device+\'" shell rm "/data/app/%s.apk"\');
+                            TextMate.system(command, null)
+                            command = "";
+                            cmd(\'cd "$TM_BUNDLE_SUPPORT"\');
+                            cmd(\'cd onebit/\');
+                            cmd(\'python bash/installapp.py "\'+apk+\'" "\'+device+\'"\');\n\n
+                            var result = TextMate.system(command, function(){
+                                $(\'h3\').html(\'Output\');    
+                                $(\'#output\').append(result.outputString); 
+                                TextMate.isBusy = false;      
+                            });
+                            TextMate.isBusy = true;
+                            $(\'h3\').html(\'Installing...\');
+                        } else {
+                            $(\'#output\').html(\'Installation Cancelled\');
+                        }\n
+                    };
+                } else {
+                    $(\'#output\').html(\'Installation Cancelled\');
+                }
+            }\n""" % (
+                    l_package, 
+                )
 
     blocks = {'content': block_content, 'style': block_style, 'script': block_script}
     debug_info = '1=9&82=15&78=19&3=23&52=27'
