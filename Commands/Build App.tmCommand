@@ -5,18 +5,18 @@
 	<key>beforeRunningCommand</key>
 	<string>nop</string>
 	<key>command</key>
-	<string>python "${TM_BUNDLE_SUPPORT}/onebit/debug.py"</string>
+	<string>python "${TM_BUNDLE_SUPPORT}/onebit/buildapp.py"</string>
 	<key>input</key>
 	<string>none</string>
 	<key>keyEquivalent</key>
-	<string>@A</string>
+	<string>@b</string>
 	<key>name</key>
-	<string>Debug</string>
+	<string>Build App</string>
 	<key>output</key>
 	<string>showAsHTML</string>
 	<key>scope</key>
 	<string>source.java</string>
 	<key>uuid</key>
-    <string>b1259729-3718-4e0d-9f36-fe6d23eb5e10</string>
+	<string>5403351A-3F0E-45FB-BAF5-58672EDF25F8</string>
 </dict>
 </plist>

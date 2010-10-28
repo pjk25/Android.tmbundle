@@ -9,7 +9,7 @@
 	<key>input</key>
 	<string>none</string>
 	<key>keyEquivalent</key>
-	<string>@A</string>
+	<string>@r</string>
 	<key>name</key>
 	<string>Install App</string>
 	<key>output</key>
