@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block script %}
+	$('.error').hide();
+    cmd('cd "$TM_BUNDLE_SUPPORT"');
+    cmd('cd onebit/');
+    cmd('source bash/global.sh');
+    cmd('checkBuildPath');
+    var output = TextMate.system(command, null).outputString;
+    if (output) {
+        $('#content').html(output);
+    } else {
+        command = "";
+        cmd('target=$(CocoaDialog standard-dropdown --float --items {% for target in targets %}"{{ target.label.replace('"',"") }}" {% endfor %} --text "Select a new build target")');
+        cmd('cd "$TM_BUNDLE_SUPPORT"');
+        cmd('cd onebit/');
+        cmd('python bash/updatetarget.py ${target:2} "{{ targetids }}"');
+        var result = TextMate.system(command, function(){
+            $('h3').html('Output');    
+            $('#output').html(result.outputString); 
+            TextMate.isBusy = false;      
+        });
+        TextMate.isBusy = true;
+        $('h3').html('Updating...');        
+    }
+{% endblock %}
+
+{% block style %}
+
+{% endblock %}
+
+{% block content %}
+<h3>Creates a new Android Project resource</h3>
+<span class="error"></span>
+	<pre id="output"></pre>
+{% endblock %}

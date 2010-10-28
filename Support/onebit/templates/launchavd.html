@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block script %}
+    $('.device').click(function() {
+        command = "";
+        cmd('wipe=$(CocoaDialog msgbox --float --text "Wipe?" --informative-text "Do you want to clear the data partition?" --button1 "Yes" --button2 "No")');
+        cmd('cd "$TM_BUNDLE_SUPPORT"');
+        cmd('cd onebit/');
+        cmd('python bash/launchavd.py '+this.id+" "+'$wipe');
+        TextMate.isBusy = true;
+        TextMate.system(command, function(){
+            $('h3').html('Devices');
+            TextMate.isBusy = false;
+        });
+        $('h3').html(this.id+' launching...');
+    }).hover(function() {
+        $("#"+this.id+"_avdpath").stop().animate({opacity:1.0}, 100);
+    }, function() {
+        $("#"+this.id+"_avdpath").stop().animate({opacity:0.0}, 100);
+    });
+    
+    $('.avddelete').click(function() {
+        var avdid = this.id.replace("_avddelete", "");
+        command = "";
+        cmd('echo wipe=$(CocoaDialog msgbox --float --text "Delete?" --informative-text "Do you want to delete '+avdid+'?" --button1 "Yes" --button2 "No")');
+        // 
+        TextMate.isBusy = true;
+        var result = TextMate.system(command, null);
+        var dodelete = result.outputString.replace(" ","").replace("\n", "").replace("wipe=", "") == "1";
+        if (dodelete) {
+            command = "";
+            cmd('"$ANDROID_SDK"/"tools/android" delete avd -n '+avdid);
+            var result = TextMate.system(command, null);
+            if (result.errorString) {
+               $('#output').html(result.errorString);
+            } else {
+                $('#output').html(result.outputString);
+                $('#'+avdid).remove();
+                $(this).remove();
+            }
+            
+        } 
+        TextMate.isBusy = false;
+    });
+    $('.avdinfo').click(function() {
+        var avdid = this.id.replace("_avdinfo", "");
+        $('#overlay h4').html(avdid+" Config Properties");
+        command = "";
+        cmd('cd "$TM_BUNDLE_SUPPORT"');
+        cmd('cd onebit/');
+        cmd('python bash/showavdinfo.py "'+$('#'+avdid+"_avdpath").html()+'"');
+        var result = TextMate.system(command, null);
+        $('#overlaycontent').html(result.outputString);
+        $('#overlay').hide().fadeIn('fast');
+    });
+    
+    $('#footer').click(function() {
+        $('#output').html('AVD Manager launched. You must close it to continue using TextMate.');
+        command = "";
+        cmd('"$ANDROID_SDK/tools/android"');
+        TextMate.system(command, null);
+    });
+    
+    $('#overlayclose').click(function() {
+        $('#overlay').hide();
+    });
+{% endblock %}
+
+{% block style %}
+	#devices{
+	    float:left;
+	    width:100%;
+	}
+	#avdempty, .device, .d_error{
+	    margin:10px;
+	    font-size:120%;
+	    -webkit-border-radius: 19px;
+        border-radius: 19px;
+        -webkit-box-shadow:-1px 1px 2px #555;
+        box-shadow:-1px 1px 2px #555;
+        cursor:pointer;
+        background: #FFF url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAACgCAMAAAD+fibNAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMBQTFRF////zM6+0NLD1uW1z+Kr1OOy1NfJz9HB19nN1OOvzdC/0tTF0uKq1OCs2t3R7PPc1NbH6fHV0eSw2Oe31ui35efe8fTs3d7S2dvO0eGt5e7R/f773OrD1+W73+DW+vv2/f389PXy2+m/4eLY/v7+6uvk8PXl7u7p3d/U4uPa9/zy7/Li5+jg6Oni5e3M3uvH4+Xc1+i+2ea+9Pnv5fDW6+zl0eSs+/v54evE0+Kx4uvK4OzL7e3n4+/O4+vO0N+rI0WR/wAAAQNJREFUeNqk0MlyglAARNFmBgERlEGQSUQEUXGKRk38/78KeRiIlUUW3qpTvW/ghaLZDFEU4XQ6IQxDxHEMK7aQWRlu2Q3H4xFpmmK1WqEsS5imSVRVhTzPkSQJgiRAEARYLBawbZvo9/stx3EIURSf8Dz/x2AwaMgy5B80TdC/CLRQoxuC8NAjer0ORVH/eiWv/s/zPIReiKIosN/vYVkW5vM5lsslNE1r6Bp0XcfhcCDrum7tA+v1GtfPKy6XCzabDc7nMyaTCabfplPstltsdzv4vl8bYjQaEcxw2GGYZxzX4h7epY5kGA1JIow3paUoDZYdE6qqttgx22A7Y+X+JcAAZ/ceJOo8QMQAAAAASUVORK5CYII=) repeat-x top left;
+	    color:#333;
+	}
+	.d_error{
+        background:#DDD;
+        cursor:default;
+    }
+	.device:hover{
+	    -webkit-box-shadow:-1px 1px 2px #888;
+        box-shadow:-1px 1px 2px #888;
+        background-position: 0px -80px;
+	}
+	.avdname{
+	    padding:20px 20px 30px 20px;
+	    text-indent:26px;
+		text-shadow: 1px 1px 1px #FFF;
+	    display:block;
+	    height:100%;
+	    background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAhCAMAAADu4HshAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMBQTFRF3fna3vXVyuTI0NDK0e7R4vjWzurOhIV74PrZqMYv1vDS2/fY2PHSOTww4ffV5fvY4/nXMzYsyuPHz+jLKCoizObKJCYe1O7QzObIGhsU1O3PIiQc2PTVy+TH2PPU0erN2/TUyeLHCwwJFBURzOXJ2fTW0OnLHB4Y1/LUERMO3/TT2vXWq8k+iY93DhALFxgTLjEnHyEaqccvyuPIyOHFyeLF0/DTz+zP////3PfXzefK1OvM2/LS3/jYzebJ3PTUSt9z8QAAAXhJREFUeNpk0ItugjAUgOFDBUVEKB3IwAsKTHRMhHqZdoLv/1Y77S7J5k/bnHwhTQAuvfG/ehd4MFTwxgBgtqbhUsfR7kt7geJ5I0QwTUoNQ7LteVB7MEJuzZa6ku83r4a6BhjB9dqaFG+ghqOh+PXoq2tLKXXxBh/RL2UvZakU833EWVnOZuVMqoHvuoiTyWYh22w2i6VjSJzAdGrZFsaH3LaXmmG40yk0jRXHYThE5JZ90xzaNFAUIVrI+XDI49C6vToFYpQkCRIi7ji+vRYFRNHT+mktuHQcktiOIsj2neiEkFfyruvE+iPbQ5bl2LPC5zwPunWWwXY7x5g0Pldtt1BVDFsxTjgjaqwqSKvj6ciO7I29nY6rE2OnNIU0Zf9SeCAHQshBHiqFuSrIAxIEhOSBQhGIAJfAEw8hFPb/lPQV6u/vcuGW6TpiVZ0xHZ+zrsvxnFaIj+FnPoY/5Lvd7neE/U+73e8Ig+ihAfQGxd+aQe9TgAEA4hlLdAvBVPAAAAAASUVORK5CYII=) no-repeat 15px 18px;
+	}
+	.avdpath{
+	    opacity:0.0;
+		font-size:70%;
+		color:#FFF;
+		position:absolute;
+		padding:5px 7px;
+		margin-top:-27px;
+		margin-left:16px;
+		padding:4px 10px 14px 10px;
+		font-family: Georgia, serif;
+		font-style:italic;
+		background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAagAAAAwCAYAAABE8O5aAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAUdJREFUeNrs2z1KA0EAhuFZ8QRexgN4E6/jCTyDF1BUJCBYpbCwsbDQTgtBCPgDbr4hAZewmMpZi+eBj7AJ00zzEkK6UspxAYB/ZscVACBQACBQAAgUAAgUAAIFAAIFAAIFgEABgEABIFAAIFAACBQACBQACBQAAgUAAgWAQAGAQAEgUAAgUAAgUAAIFAAIFAACBQACBQACBYBAAYBAASBQACBQAAgUAAgUAAgUAAIFAAIFgEABwN/q+r7/eei6+nKY7W8595Ad5ey3KwSg1Teo8+xjy7nTTJwAaBqop+zmlzN32a2rA6B1oKqLbDHyfr/+9gQAkwTqJZuNvD/P7l0bAFMFqrrKXgfPX9mZKwNg6kC9ZZeD5/q71KMrA2DqQFXX2XP2WVa/SwFAE2P/g9p0kO1lJ5sfDM8CQOtA7a73LlAAtLIUYAAUEy+A927YWgAAAABJRU5ErkJggg==) no-repeat  bottom left;
+	}
+	.avdtarget, .avderror{
+	    font-size:65%;
+	    position:absolute;
+	    color:#777;
+	    margin-top:35px;
+	    margin-left:45px;
+	    white-space:nowrap;
+	    overflow:hidden;
+	    width:77%;
+	}
+	.avderror{
+	    color:#F00;
+	    overflow:hidden;
+	    width:77%;
+	}
+	.avddelete{
+	    width:25px;
+	    height:25px;
+	    text-indent:-999px;
+		float:right;
+	    margin-top:7px;
+		margin-right:15px;
+	    opacity:.1;
+	    background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAMAAADzN3VRAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADBQTFRFAAAA////Ly8vNjY22traZGRkSUlJmpqaFRUVLCwsgoKCsbGx2NjYpKSkAgIC9PT0YUFlUwAAABB0Uk5T////////////////////AOAjXRkAAACLSURBVHjafJJZFoAgCEVfzlO2/902aCkVvA/lcFUQwNZUvNWhBm196R5cq0kKt1Qyg2SHWS7fZI2gimsj+Q0OlE9iHL5y5iDptJbJe9lpQ1GgqFmqwBPH2D0sPfvctdDkmfGoRphDT4kE1HdWXVW4w8fhc+P/w9eAr5tQa74/Qk+FORBm53fedgEGAJH1CFJYOSM5AAAAAElFTkSuQmCC) no-repeat top left;
+	}
+	.avdinfo{
+	    width:25px;
+	    height:25px;
+	    text-indent:-999px;
+	    float:right;
+	    margin-right:-24px;
+	    margin-top:38px;
+	    opacity:.1;
+        background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAMAAADzN3VRAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADBQTFRFAAAA////Ly8vNjY22traZGRkSUlJmpqaFRUVLCwsgoKCsbGx2NjYpKSkAgIC9PT0YUFlUwAAABB0Uk5T////////////////////AOAjXRkAAACTSURBVHjafJIJDsQgCEV/xa1q7f1vO4zKLBV9JsTwglEEd6cER7FGcqGMDFq0yUAwyX5N9vjFZzHXiX/Oq5v8FKzy21iPGW/ZJGikG8WoxhQE6AQ4jgevFpkewHkaOfFoO3A+jprjYSKqnCYHDVM/NZhqaDL9BtTupuE271n3YN23Ta/X/7P5080cbGZHnbeXAAMAs6UIaqIHIpIAAAAASUVORK5CYII=) no-repeat top left;
+	}
+	.avddelete:hover, .avdinfo:hover{
+	    opacity:.6;
+	    cursor:pointer;
+	}
+	
+	#footer{
+	    float:left;
+	    color:#EEE;
+	    cursor:pointer;
+	    text-decoration:underline;
+	    font-size:.8em;
+	    clear:both;
+	    margin-left:27px;
+	    font-style:italic;
+	    font-family: Georgia, serif;
+	}
+	#footer:hover{
+	    color:#FFF;
+	}
+	#overlay{
+	    display:none;
+	    position:fixed;
+	    top:0;
+	    width:100%;
+	    height:100%;
+	    background:rgba(0,0,0,0.85);
+	    z-index:999;
+	    overflow: hidden;
+	    color:#FFF;
+	    min-width:400px;
+	}
+	#overlayclose{
+	    background:#FFF;
+	    float:right;
+	    margin:10px;
+	    color:#000;
+	    padding:4px 6px;
+	    -webkit-border-radius: 9px;
+        border-radius: 9px;
+        -webkit-box-shadow:-1px 1px 2px #000;
+        box-shadow:-1px 1px 2px #000;
+        text-shadow: -1px 1px 1px #CCC;
+        cursor:pointer;
+	}
+	#overlayclose:hover{
+	    color:#666;
+	}
+	#overlaycontent{
+	    float:left;
+	    margin-left:60px;
+	    clear:both;
+	    margin-right:60px;
+	}
+	#overlaycontent li{
+	    float:left;
+	    margin-top:5px;
+	    margin-right:5px;
+	    padding:8px;
+	    background:#000;
+	    color:#FFF;
+	    white-space:nowrap;
+	    -webkit-box-shadow:-1px 1px 2px #000;
+        box-shadow:-1px 1px 2px #000;
+        text-shadow: -1px 1px 1px #000;
+	}
+
+	#overlaycontent span.value{
+	    font-weight:bold
+	}
+	#overlay h4{
+	    font-size:1.5em;
+	    float:left;
+        margin-left:60px;
+        margin-top:60px;
+        margin-bottom:40px;
+	}
+{% endblock %}
+
+{% block content %}
+	<h3>Devices</h3>
+	<ul id="devices">
+	    {% for avd in avds %}
+		<li id="avdempty"> </li>
+	    <li id="{{ avd.name }}_avddelete" class="avddelete">Delete</li>
+	    <li id="{{ avd.name }}_avdinfo" class="avdinfo">Info</li>
+	    <li class='device{% if avd.error %} d_error{% endif %}'  id='{{ avd.name }}'>
+	        {% if avd.error %}
+				<span class="avderror" id="{{ avd.error }}_avdpath">{{ avd.error }}</span>
+	        {% else %}
+				<span class="avdtarget" id="{{ avd.name }}_avdtarget">{{ avd.target }}, {{ avd.skin }}{% if avd.sdcard %}, {{ avd.sdcard }} SD Card{% endif %}</span>
+	        {% endif %}
+			<span class="avdpath" id="{{ avd.name }}_avdpath">{{ avd.path }}</span>
+			<span class="avdname" id="{{ avd.name }}_avdname">{{ avd.name }}</span>
+		</li>
+		
+	    {% endfor %}
+	</ul>
+	<div id="footer">Alternative AVD Manager</div>
+	<pre id="output"></pre>
+	<div id="overlay">
+	    <div id="overlayclose">Close</div>
+	    <h4></h4>
+	    <ul id="overlaycontent">
+	    </ul>
+	</div>
+{% endblock %}

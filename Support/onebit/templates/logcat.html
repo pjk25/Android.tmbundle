@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block script %}
+
+if ('{{ device_str }}'!='') {
+    command = "";
+    cmd('device=$(CocoaDialog standard-dropdown --float --items {{ device_str }} --string-output --text "Select a device to run logcat.")');
+    cmd('echo ${device:2}"::::"${device:0}');
+    
+    device = (TextMate.system(command, null).outputString).replace("\n", "").replace(" ","");
+
+    if (device.indexOf("::::Ok")==-1) {
+        $('#output').html('Logcat cancelled');
+    } else {
+        i = device.indexOf('::::');
+        device = device.substring(0,i);
+
+        command = "";
+        cmd('cd "$TM_BUNDLE_SUPPORT"');
+        cmd('cd onebit/tmp');
+        cmd('> logcat.onebit');
+        cmd('cat /dev/null > logcat.onebit')
+        cmd('"$ANDROID_SDK"/tools/adb -s "'+device+'" logcat >> logcat.onebit');
+
+        var result = TextMate.system(command, function(){
+            $('h3').html("Logcat has unexpectedly ended");
+            $('#output').append("\n"+result.outputString);
+        });
+        command = "";
+        cmd('open -a "console.app" "$TM_BUNDLE_SUPPORT/onebit/tmp/logcat.onebit"');
+        TextMate.system(command, null);
+        $('h3').html("Logcat launched with Console.app");
+        $('#output').html('Closing this window will stop logcat');
+        TextMate.isBusy = true;
+    }
+} else {
+    $('#output').html('No Virtual Devices are running.');
+}
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+{% endblock %}
+
+{% block style %}
+
+{% endblock %}
+
+{% block content %}
+    <h3>Launching Logcat with Console.app</h3>
+    <pre id="output"></pre>
+{% endblock %}

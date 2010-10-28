@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block script %}
+    cmd('cd "$TM_BUNDLE_SUPPORT"');
+    cmd('cd onebit/');
+    cmd('source bash/global.sh');
+    cmd('checkBuildPath');
+    var output = TextMate.system(command, null).outputString;
+    if (output) {
+        $('#content').html(output);
+    } else {
+        command = "";
+        cmd('echo btype=$(CocoaDialog standard-dropdown --float --text "Select Build Type" --string-output --items debug release)');
+        
+        var result = TextMate.system(command, null);
+        //var dobuild = result.outputString.replace(" ","").replace("\n", "").replace("wipe=", "") == "1";
+
+        var debugtype = result.outputString.indexOf("debug")!=-1;
+        
+
+        if (result.outputString.indexOf("Ok")!=-1) {
+            command = "";
+            cmd('cd "$TM_BUNDLE_SUPPORT"');
+            cmd('cd onebit/');
+            if (debugtype) {
+                cmd('python bash/buildapp.py debug');
+            } else {
+                cmd('python bash/buildapp.py release');
+            }
+            var result = TextMate.system(command, function(){
+                $('h3').html('Output');    
+                $('#output').html(result.outputString); 
+                TextMate.isBusy = false;      
+            });
+            TextMate.isBusy = true;
+            $('h3').html('Building...');
+        };
+        
+                
+    }
+{% endblock %}
+
+{% block style %}
+
+{% endblock %}
+
+{% block content %}
+    <h3></h3>
+    <pre id="output"></pre>
+{% endblock %}
