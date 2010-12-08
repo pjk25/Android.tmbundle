@@ -20,7 +20,7 @@ if ('{{ device_str }}'!='') {
         cmd('cd onebit/tmp');
         cmd('> logcat.onebit');
         cmd('cat /dev/null > logcat.onebit')
-        cmd('"$ANDROID_SDK"/tools/adb -s "'+device+'" logcat >> logcat.onebit');
+        cmd('"$ANDROID_SDK"/platform-tools/adb -s "'+device+'" logcat >> logcat.onebit');
 
         var result = TextMate.system(command, function(){
             $('h3').html("Logcat has unexpectedly ended");

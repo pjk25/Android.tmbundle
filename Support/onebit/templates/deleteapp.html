@@ -25,7 +25,7 @@
                 device = device.substring(0,i);
 
                 command = "";
-                cmd('"$ANDROID_SDK"/tools/adb -s "'+device+'" shell rm "/data/app/{{ package }}.apk"');
+                cmd('"$ANDROID_SDK"/platform-tools/adb -s "'+device+'" shell rm "/data/app/{{ package }}.apk"');
                 TextMate.system(command, null);
                 $('#output').html('"{{ package }}.apk", deleted from device '+device+".");
                 
