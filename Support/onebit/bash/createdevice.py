@@ -3,6 +3,7 @@ import os
 import pexpect
 
 def main(*args):  
+    
     cmd = '"%s/tools/android" create avd -n %s -t %s' % (os.environ['ANDROID_SDK'], args[1], args[2])
          
     child = pexpect.spawn(cmd)
@@ -39,43 +40,36 @@ def main(*args):
         child.expect('Maximum vertical.*')
         child.sendline(args[11])
 
-        child.expect('Data partition.*')
+        child.expect('Camera support.*')
         child.sendline(args[12])
 
-        child.expect('Camera support.*')
+        child.expect('Battery support.*')
         child.sendline(args[13])
 
-        child.expect('Battery support.*')
+        child.expect('Touch-screen support.*')
         child.sendline(args[14])
 
-        child.expect('Touch-screen support.*')
+        child.expect('Audio recording support.*')
         child.sendline(args[15])
 
-        child.expect('Audio recording support.*')
-        child.sendline(args[16])
-
         child.expect('GPS support.*')
+        child.sendline(args[16])
+        
+        child.expect('Cache partition support.*')
         child.sendline(args[17])
 
-        child.expect('System partition.*')
+        child.expect('Keyboard support.*')
         child.sendline(args[18])
 
-        child.expect('Cache partition support.*')
+        child.expect('Max VM application.*')
         child.sendline(args[19])
 
-        child.expect('Keyboard support.*')
+        child.expect('Device ram size.*')
         child.sendline(args[20])
 
-        child.expect('Max VM application.*')
+        child.expect('GSM modem support.*')
         child.sendline(args[21])
 
-        child.expect('Device ram size.*')
-        child.sendline(args[22])
-
-        child.expect('GSM modem support.*')
-        child.sendline(args[23])
-
-        child.sendline(args[23])
         child.expect ('\r\n')
         
         if(str(child).find("before (last 100 chars): hw.gsmModem [yes]:yes")!=-1 or str(child).find("exitstatus: None")!=-1):

@@ -7,10 +7,12 @@
 	    if (!options_on) {
 	        options_on = true;
             $('#avd_options').show();
+            $('#sdcardform').show();
             $('#show_options').html("<label> </label>Don't use custom options")
 	    } else {
 	        options_on = false;
             $('#avd_options').hide();
+            $('#sdcardform').hide();
             $('#show_options').html('<label> </label>Use custom options (beta)')
 	    }
 	});
@@ -52,25 +54,23 @@
             var sdoptions = "0";
             
             if ($('#sd_size').val()!="") {
-                sdoptions = $('#sd_size').val()+$('#sd_sizet').val();
+                if (parseInt($('#sd_size').val(), 10) < 9) {
+                  $('#sd_size').val('9');
+                };
+                sdoptions = $('#sd_size').val()+"M";
             } else if (location.replace("\n","")!="None" || location.replace("\n","")!="") {
                 sdoptions = '"'+location.replace("\n","")+'"';
             };
             
             if (options_on) {
                 if (sdoptions=="" || sdoptions=="0" || sdoptions=='""') {
-                    cmd('python bash/createdevice.py  "'+$('#device_name').val() +'" "'+ $('#build_target').val()+'" "'+$('#hw_sdCard').val()+'" "'+$('#hw_lcd_density').val()+'" "'+$('#hw_dPad').val()+'" "'+$('#hw_accelerometer').val()+'" "'+$('#hw_camera_maxHorizontalPixels').val()+'" "'+$('#disk_cachePartition_size').val()+'MB" "'+$('#hw_audioOutput').val()+'" "'+$('#hw_trackBall').val()+'" "'+$('#hw_camera_maxVerticalPixels').val()+'" "'+$('#data_partitionSize').val()+'MB" "'+$('#hw_camera').val()+'" "'+$('#hw_battery').val()+'" "'+$('#hw_touchScreen').val()+'" "'+$('#hw_audioInput').val()+'" "'+$('#hw_gps').val()+'" "'+$('#systemPartition_size').val()+'MB" "'+$('#disk_cachePartition').val()+'" "'+$('#hw_keyboard').val()+'" "'+$('#vm_size').val()+'" "'+$('#hw_ramSize').val()+'" "'+$('#hw_gsmModem').val()+'"');
+                    cmd('python bash/createdevice.py  "'+$('#device_name').val() +'" "'+ $('#build_target').val()+'" "'+$('#hw_sdCard').val()+'" "'+$('#hw_lcd_density').val()+'" "'+$('#hw_dPad').val()+'" "'+$('#hw_accelerometer').val()+'" "'+$('#hw_camera_maxHorizontalPixels').val()+'" "'+$('#disk_cachePartition_size').val()+'MB" "'+$('#hw_audioOutput').val()+'" "'+$('#hw_trackBall').val()+'" "'+$('#hw_camera_maxVerticalPixels').val()+'" "'+$('#hw_camera').val()+'" "'+$('#hw_battery').val()+'" "'+$('#hw_touchScreen').val()+'" "'+$('#hw_audioInput').val()+'" "'+$('#hw_gps').val()+'" "'+$('#disk_cachePartition').val()+'" "'+$('#hw_keyboard').val()+'" "'+$('#vm_size').val()+'" "'+$('#hw_ramSize').val()+'" "'+$('#hw_gsmModem').val()+'"');
                 } else {
-                    cmd('python bash/createdevicesd.py '+sdoptions+' "'+$('#device_name').val() +'" "'+ $('#build_target').val()+'" "'+$('#hw_sdCard').val()+'" "'+$('#hw_lcd_density').val()+'" "'+$('#hw_dPad').val()+'" "'+$('#hw_accelerometer').val()+'" "'+$('#hw_camera_maxHorizontalPixels').val()+'" "'+$('#disk_cachePartition_size').val()+'MB" "'+$('#hw_audioOutput').val()+'" "'+$('#hw_trackBall').val()+'" "'+$('#hw_camera_maxVerticalPixels').val()+'" "'+$('#data_partitionSize').val()+'MB" "'+$('#hw_camera').val()+'" "'+$('#hw_battery').val()+'" "'+$('#hw_touchScreen').val()+'" "'+$('#hw_audioInput').val()+'" "'+$('#hw_gps').val()+'" "'+$('#systemPartition_size').val()+'MB" "'+$('#disk_cachePartition').val()+'" "'+$('#hw_keyboard').val()+'" "'+$('#vm_size').val()+'" "'+$('#hw_ramSize').val()+'" "'+$('#hw_gsmModem').val()+'"');
+                    cmd('python bash/createdevicesd.py "'+sdoptions+'" "'+$('#device_name').val() +'" "'+ $('#build_target').val()+'" "'+$('#hw_sdCard').val()+'" "'+$('#hw_lcd_density').val()+'" "'+$('#hw_dPad').val()+'" "'+$('#hw_accelerometer').val()+'" "'+$('#hw_camera_maxHorizontalPixels').val()+'" "'+$('#disk_cachePartition_size').val()+'MB" "'+$('#hw_audioOutput').val()+'" "'+$('#hw_trackBall').val()+'" "'+$('#hw_camera_maxVerticalPixels').val()+'" "'+$('#hw_camera').val()+'" "'+$('#hw_battery').val()+'" "'+$('#hw_touchScreen').val()+'" "'+$('#hw_audioInput').val()+'" "'+$('#hw_gps').val()+'" "'+$('#disk_cachePartition').val()+'" "'+$('#hw_keyboard').val()+'" "'+$('#vm_size').val()+'" "'+$('#hw_ramSize').val()+'" "'+$('#hw_gsmModem').val()+'"');
                 }
                 
             } else {
-                if (sdoptions=="" || sdoptions=="0" || sdoptions=='""') {
-                    cmd('bash/createdevice.sh "'+$('#device_name').val() +'" "'+ $('#build_target').val()+'"');
-                } else {
-                    cmd('bash/createdevicesd.sh "'+$('#device_name').val() +'" "'+ $('#build_target').val()+'" "'+ sdoptions+'"');
-                }
-                
+                cmd('bash/createdevice.sh "'+$('#device_name').val() +'" "'+ $('#build_target').val()+'"');
             }
             
             TextMate.isBusy = true;
@@ -82,6 +82,9 @@
                 $('h3').html("Output");
                 var output = result.outputString;
                 if (output=="OK") {
+                  console.log(command);
+                  console.log(result);
+                  console.log(deviceName);
                     $('#output').html(deviceName+" was created successfully.");
                 } else {
                     $('#output').html(output.replace("[no]", "[no]\n"));
@@ -121,7 +124,7 @@
     #content{
         background: transparent url(data:image/png;base64,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) no-repeat 10px 10px;
     }
-    #avd_options{
+    #avd_options, #sdcardform{
         display:none;
     }
     #show_options{
@@ -247,19 +250,16 @@
     	        {% endfor %}
             </select>
     	</p>
-    	<div id="sdcardform">
-    	<p><label> </label><em><strong>SD Card (optional)</strong></em></p>
+    	<p id="show_options"><label> </label>Use custom options (beta)</p>
+    	<!--<div id="sdcardform">
+    	<p><label> </label><em><strong>SD Card</strong></em></p>
         <p id="sd">
-            <label for="sd_size">SD Card Size</label><input type="text" name="sd_size" value="" id="sd_size">
-            <select id="sd_sizet">
-                <option value="K" selected>KiB</option>
-    	        <option value="M">MiB</option>
-            </select>
+            <label for="sd_size">SD Card Size (MB)</label><input type="text" name="sd_size" value="" id="sd_size">
         </p>
         <p><label for="sdlocation"><em><strong>or</strong></em> SD File</label><input type="button" name="sdlocation" value="Browse" id="sdlocation"></p>
     	<p id="location_folder">None</p>
-    	</div>
-    	<p id="show_options"><label> </label>Use custom options (beta)</p>
+    	</div>-->
+    	
     	<div id="avd_options">
     	<p><label for="hw_sdCard">SD Card</label>
 			<select id="hw_sdCard">
@@ -302,7 +302,6 @@
 	        </select>
 		</p>
 		<p><label for="hw_camera_maxVerticalPixels">Maximum vertical camera pixels</label><input type="text" name="hw_camera_maxVerticalPixels" value="480" id="hw_camera_maxVerticalPixels"></p>
-		<p><label for="data_partitionSize">Data partition size (MB)</label><input type="text" name="data_partitionSize" value="66" id="data_partitionSize"></p>
 		<p><label for="hw_camera">Camera</label>
 			<select id="hw_camera">
 		        <option value="yes">yes</option>
@@ -333,9 +332,7 @@
 				<option value="no">no</option>
 	        </select>
 		</p>
-		<p><label for="systemPartition_size">System partition size (MB)</label>
-			<input type="text" name="systemPartition_size" value="72" id="systemPartition_size"></p>
-	    <p><label for="disk_cachePartition">Cache partition</label>
+	  <p><label for="disk_cachePartition">Cache partition</label>
 			<select id="disk_cachePartition">
 		        <option value="yes" selected>yes</option>
 				<option value="no">no</option>
