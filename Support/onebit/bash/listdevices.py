@@ -3,7 +3,7 @@ import os
 import commands
 
 def main(*args):    
-    cmd = "%s/tools/adb devices" % (os.environ['ANDROID_SDK'])
+    cmd = "%s/platform-tools/adb devices" % (os.environ['ANDROID_SDK'])
     devices = commands.getoutput(cmd)
     devices = devices.replace("List of devices attached \n", "").split("\n")
     device_str = ''

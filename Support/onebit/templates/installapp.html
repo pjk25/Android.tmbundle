@@ -49,7 +49,7 @@
                 }
                 if (device!="BAD") {
                     command = "";
-                    cmd('"$ANDROID_SDK"/tools/adb -s "'+device+'" shell rm "/data/app/{{ package }}.apk"');
+                    cmd('"$ANDROID_SDK"/platform-tools/adb -s "'+device+'" shell rm "/data/app/{{ package }}.apk"');
                     TextMate.system(command, null)
                     command = "";
                     cmd('cd "$TM_BUNDLE_SUPPORT"');
